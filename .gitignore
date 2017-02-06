@@ -1,0 +1,11 @@
+bin
+obj
+packages/*
+*/obj
+*/bin
+*.user
+*.suo
+.vs/*
+.DS_Store
+._.DS_Store
+*.userprefs

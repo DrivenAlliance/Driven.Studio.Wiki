@@ -1,12 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Lucene.Net.Analysis.Standard;
+using Lucene.Net.Documents;
+using Lucene.Net.Index;
+using Lucene.Net.Store;
+using MarkdownWiki;
+using MarkdownWiki.Controllers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Version = Lucene.Net.Util.Version;
 
 namespace WikiNetCore
 {
@@ -37,6 +45,8 @@ namespace WikiNetCore
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
+            BuildDocumentIndex(env);
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -56,5 +66,42 @@ namespace WikiNetCore
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
         }
+
+        private static void BuildDocumentIndex(IHostingEnvironment hostingEnvironment)
+        {
+            // todo: confirm the following is correct
+            var appPath = hostingEnvironment.ContentRootPath;
+            var luceneDir = Path.Combine(appPath, "lucene_index");
+            
+            //var luceneDir = Path.Combine(HttpRuntime.AppDomainAppPath, "lucene_index");
+            var directory = new SimpleFSDirectory(new DirectoryInfo(luceneDir), new NativeFSLockFactory());
+
+            using (var analyzer = new StandardAnalyzer(Version.LUCENE_30))
+            using (var writer = new IndexWriter(directory, analyzer, new IndexWriter.MaxFieldLength(1000)))
+            {
+                // Expire any old indexes
+                writer.DeleteAll();
+
+                // Build new index
+                var wikiDocs = new DirectoryInfo(Settings.WikiPath).GetFiles("*.md", SearchOption.AllDirectories);
+                foreach (var doc in wikiDocs)
+                {
+                    string contents;
+                    using (var reader = doc.OpenText()) { contents = reader.ReadToEnd(); }
+
+                    var normalizedFileName = doc.FullName.NormalizeFileName();
+
+                    var luceneDoc = new Document();
+                    luceneDoc.Add(new Field("Entry", normalizedFileName, Field.Store.YES, Field.Index.ANALYZED));
+                    luceneDoc.Add(new Field("Content", contents, Field.Store.YES, Field.Index.ANALYZED));
+
+                    writer.AddDocument(luceneDoc);
+                }
+
+                writer.Optimize();
+                writer.Flush(true, true, true);
+            }
+        }
+
     }
 }

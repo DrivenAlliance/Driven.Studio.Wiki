@@ -25,7 +25,7 @@ namespace MarkdownWiki.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("c:\\src\\Wiki\\")]
+        [global::System.Configuration.DefaultSettingValueAttribute("wikicontent")]
         public string WikiFilePath {
             get {
                 return ((string)(this["WikiFilePath"]));

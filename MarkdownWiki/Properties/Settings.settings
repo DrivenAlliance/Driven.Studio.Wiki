@@ -3,7 +3,7 @@
   <Profiles />
   <Settings>
     <Setting Name="WikiFilePath" Type="System.String" Scope="Application">
-      <Value Profile="(Default)">c:\src\Wiki\</Value>
+      <Value Profile="(Default)">wikicontent</Value>
     </Setting>
   </Settings>
 </SettingsFile>

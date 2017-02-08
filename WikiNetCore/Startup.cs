@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using WikiNetCore.Handlers;
 using Version = Lucene.Net.Util.Version;
 
 namespace WikiNetCore
@@ -45,7 +46,13 @@ namespace WikiNetCore
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
 
+            // todo: can this be done on a seperate thread?
             BuildDocumentIndex(env);
+
+            app.MapWhen(
+                // todo: might not be the greatest way of checking for images
+                context => context.Request.Path.ToString().EndsWith("/ShowImage.ashx"),
+                appBranch => { appBranch.UseImageHandler(); });
 
             if (env.IsDevelopment())
             {
@@ -72,7 +79,7 @@ namespace WikiNetCore
             // todo: confirm the following is correct
             var appPath = hostingEnvironment.ContentRootPath;
             var luceneDir = Path.Combine(appPath, "lucene_index");
-            
+
             //var luceneDir = Path.Combine(HttpRuntime.AppDomainAppPath, "lucene_index");
             var directory = new SimpleFSDirectory(new DirectoryInfo(luceneDir), new NativeFSLockFactory());
 

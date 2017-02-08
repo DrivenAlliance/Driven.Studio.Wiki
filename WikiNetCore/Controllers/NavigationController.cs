@@ -8,7 +8,7 @@ namespace MarkdownWiki.Controllers
     {
         private readonly MenuTreeCreator _menuTreeCreator = new MenuTreeCreator();
 
-        public ActionResult GetMenuTree()
+        public IActionResult GetMenuTree()
         {
             return new JsonResult(_menuTreeCreator.GetMenuTreeForDirectory(Settings.WikiPath));
 

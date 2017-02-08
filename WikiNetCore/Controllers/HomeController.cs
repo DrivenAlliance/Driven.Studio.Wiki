@@ -28,13 +28,13 @@ namespace WikiNetCore.Controllers
             _hostingEnvironment = hostingEnvironment;
         }
 
-        public ActionResult Index()
+        public IActionResult Index()
         {
             return View();
         }
 
         [HttpPost]
-        public ActionResult Index(SearchModel searchModel)
+        public IActionResult Index(SearchModel searchModel)
         {
             if (ModelState.IsValid)
             {

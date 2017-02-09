@@ -21,7 +21,7 @@ namespace MarkdownWiki
         private static string rootInAppPath(string configuredPath)
         {
             // todo: fix
-            return Path.Combine(@"c:\Projects\Driven.Studio.Wiki\WikiNetCore", configuredPath);
+            return Path.Combine(@"c:\Projects\Driven.Studio.Wiki\WikiNetCore\wwwroot", configuredPath);
             //return Path.Combine(HttpRuntime.AppDomainAppPath, configuredPath);
         }
     }

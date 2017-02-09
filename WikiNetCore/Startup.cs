@@ -49,10 +49,10 @@ namespace WikiNetCore
             // todo: can this be done on a seperate thread?
             BuildDocumentIndex(env);
 
-            app.MapWhen(
-                // todo: might not be the greatest way of checking for images
-                context => context.Request.Path.ToString().EndsWith("/ShowImage.ashx"),
-                appBranch => { appBranch.UseImageHandler(); });
+            //app.MapWhen(
+            //    // todo: might not be the greatest way of checking for images
+            //    context => context.Request.Path.ToString().EndsWith("/ShowImage.ashx"),
+            //    appBranch => { appBranch.UseImageHandler(); });
 
             if (env.IsDevelopment())
             {

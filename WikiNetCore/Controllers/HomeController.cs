@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Lucene.Net.Analysis.Standard;
 using Lucene.Net.QueryParsers;
 using Lucene.Net.Search;
@@ -86,12 +84,15 @@ namespace WikiNetCore.Controllers
                 ? System.IO.File.ReadAllText(fileLocation)
                 : "File Not Found";
 
-            content = FixUpImages(content);
             content = FixUpLocalLinks(content, relativePath);
             content = FixUpLanFileLinks(content);
+
+            // todo: test if github tables are working without this
             //content = FixUpGithubTables(content);
 
-            var markedDownContent = content.Transform();
+            var y = Path.GetDirectoryName(entry);
+            var markedDownContent = content.Transform2(y);
+
             markedDownContent = FixUpTableOfContents(markedDownContent);
 
             var result = new MarkdownResult
@@ -101,19 +102,6 @@ namespace WikiNetCore.Controllers
             };
 
             return View(result);
-        }
-
-        private static string FixUpImages(string content)
-        {
-            var regex = new Regex(@"\(..\/Attachments\/((?:\w|\s|\d|\b|[-.!@#$%^&()_+=`~\/])*)\)", RegexOptions.Multiline);
-            var matches = regex.Matches(content);
-            foreach (Match match in matches)
-            {
-                content = content.Replace(match.Value, match.Value.Replace(" ", "%20"));
-            }
-
-            content = content.Replace("../Attachments", "/ShowImage.ashx?imagePath=../Attachments");
-            return content;
         }
 
         private static string FixUpLocalLinks(string content, string relativePath)

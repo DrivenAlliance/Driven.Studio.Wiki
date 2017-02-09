@@ -9,4 +9,5 @@ packages/*
 .DS_Store
 ._.DS_Store
 *.userprefs
+*.swp
 lucene_index

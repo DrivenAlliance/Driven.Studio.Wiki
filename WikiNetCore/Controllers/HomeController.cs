@@ -77,23 +77,7 @@ namespace WikiNetCore.Controllers
 
         public ActionResult ViewPage(string entry)
         {
-            var fileLocation = $"{Settings.WikiPath}{entry}.md";
-            var relativePath = entry.GetRelativePath();
-
-            var content = System.IO.File.Exists(fileLocation)
-                ? System.IO.File.ReadAllText(fileLocation)
-                : "File Not Found";
-
-            content = FixUpLocalLinks(content, relativePath);
-            content = FixUpLanFileLinks(content);
-
-            // todo: test if github tables are working without this
-            //content = FixUpGithubTables(content);
-
-            var y = Path.GetDirectoryName(entry);
-            var markedDownContent = content.Transform2(y);
-
-            markedDownContent = FixUpTableOfContents(markedDownContent);
+            var markedDownContent = TransformExtensions.markDownToHtml(entry);
 
             var result = new MarkdownResult
             {
@@ -103,69 +87,5 @@ namespace WikiNetCore.Controllers
 
             return View(result);
         }
-
-        private static string FixUpLocalLinks(string content, string relativePath)
-        {
-            var regex = new Regex(@"\(((?:\w|\s|\d|\b|[-!@#$%^&()_+=`~])+(\.md)?)\)", RegexOptions.Multiline);
-            var matches = regex.Matches(content);
-            foreach (Match match in matches)
-            {
-                var groupValue = match.Groups[0].Value;
-                var fileName = match.Groups[1].Value;
-
-                try
-                {
-                    if (fileName.Substring(fileName.Length - 3, 3) == ".md")
-                        fileName = fileName.Substring(0, fileName.Length - 3);
-
-                    var wikiDirectory = new DirectoryInfo(Settings.WikiPath);
-                    var files = wikiDirectory.GetFiles($"{fileName}.md", SearchOption.AllDirectories);
-                    if (files.Length > 0)
-                    {
-                        var fixedFileName = files[0].FullName.Replace(Settings.WikiPath, string.Empty).Replace(".md", string.Empty);
-                        var encodedPath = System.Text.Encodings.Web.UrlEncoder.Default.Encode(fixedFileName);
-                        var substituteGroupValue = $"(ViewPage?entry={encodedPath})";
-                        content = content.Replace(groupValue, substituteGroupValue);
-                    }
-                }
-                catch { /* Do nothing */ }
-            }
-
-            return content;
-        }
-
-        private static string FixUpLanFileLinks(string content)
-        {
-            var regex = new Regex(@"(\(|\[)(file:\\\\\\)?((?:\w|\s|\d|[-.!@#$%^&()_+=`~\\])+)(\)|\])", RegexOptions.Multiline);
-            var matches = regex.Matches(content);
-
-            foreach (Match match in matches)
-            {
-                var leftBracket = match.Groups[1].Value;
-                var rightBracket = match.Groups[4].Value;
-                var protocol = match.Groups[2].Value;
-                var filePath = match.Groups[3].Value;
-                var entireMatch = match.Value;
-
-                var encodedFilePath = protocol == @"file:\\\" ? filePath.Replace(" ", "%20") : filePath;
-                encodedFilePath = encodedFilePath.EscapeFilePathEnd();
-                content = content.Replace(entireMatch, $"{leftBracket}{protocol}{encodedFilePath}{rightBracket}");
-
-            }
-            return content;
-        }
-
-        private static string FixUpGithubTables(string content)
-        {
-            var tableParser = new GithubTableParser();
-            return tableParser.Parse(content);
-        }
-
-        private static string FixUpTableOfContents(string content)
-        {
-            var tableOfContentsParser = new TableOfContentsParser();
-            return tableOfContentsParser.Parse(content);
-        }
-
     }
 }

@@ -97,6 +97,7 @@ namespace WikiNetCore
                     using (var reader = doc.OpenText()) { contents = reader.ReadToEnd(); }
 
                     var normalizedFileName = doc.FullName.NormalizeFileName();
+                    //var nfn = doc.FullName.NFN();
 
                     var luceneDoc = new Document();
                     luceneDoc.Add(new Field("Entry", normalizedFileName, Field.Store.YES, Field.Index.ANALYZED));

@@ -1,3 +1,4 @@
+using System;
 using System.IO;
 using System.Web;
 
@@ -21,8 +22,18 @@ namespace MarkdownWiki
         private static string rootInAppPath(string configuredPath)
         {
             // todo: fix
-            return Path.Combine(@"c:\Projects\Driven.Studio.Wiki\WikiNetCore\wwwroot", configuredPath);
+            var contentRootedPath = Path.Combine(@"c:\Projects\Driven.Studio.Wiki\WikiNetCore\wwwroot", configuredPath);
+            return contentRootedPath;
             //return Path.Combine(HttpRuntime.AppDomainAppPath, configuredPath);
+        }
+
+        public static Uri WikiContentPathUri()
+        {
+            var wikiContentUri = new Uri(Settings.WikiPath);
+            // todo: the trailing slash here is important, as it identifies the uri as a container
+            return !wikiContentUri.AbsoluteUri.EndsWith("/")
+                ? new Uri(wikiContentUri + "/")
+                : wikiContentUri;
         }
     }
 }

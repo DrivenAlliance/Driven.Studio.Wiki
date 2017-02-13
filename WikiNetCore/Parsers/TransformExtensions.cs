@@ -16,7 +16,6 @@ namespace MarkdownWiki.Parsers
         {
             var pipeLine = new MarkdownPipelineBuilder()
                 .UseAdvancedExtensions()
-                .UseGridTables()
                 .UseBootstrap()
                 .Build();
 
@@ -50,6 +49,7 @@ namespace MarkdownWiki.Parsers
 
             var writer = new StringWriter();
             var htmlRenderer = new HtmlRenderer(writer);
+            pipeLine.Setup(htmlRenderer);
             htmlRenderer.Render(markdownDocument);
             writer.Flush();
 

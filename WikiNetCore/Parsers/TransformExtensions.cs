@@ -12,14 +12,47 @@ namespace MarkdownWiki.Parsers
 {
     public static class TransformExtensions
     {
-        public static string Transform2(this string content, string contentPath)
+        public static string MarkDownToHtml(string entry)
         {
-            var pipeLine = new MarkdownPipelineBuilder()
+            var filePath = absoluteLocalFilePath(entry);
+
+            var content = File.Exists(filePath)
+                ? File.ReadAllText(filePath)
+                : "File Not Found";
+
+            var contentPath = Path.GetDirectoryName(entry);
+            // todo: could probably build this once only?
+            var pipeLine = buildMarkdigParserPipeLine();
+            var markdownDocument = Parse(content, pipeLine);
+
+            fixupLinks(contentPath, markdownDocument);
+            var markedUpContent = render(pipeLine, markdownDocument);
+
+            markedUpContent = fixUpTableOfContents(markedUpContent);
+
+            return markedUpContent;
+        }
+
+        private static MarkdownPipeline buildMarkdigParserPipeLine()
+        {
+            return new MarkdownPipelineBuilder()
                 .UseAdvancedExtensions()
                 .UseBootstrap()
                 .Build();
+        }
 
-            var markdownDocument = Parse(content, pipeLine);
+        private static string render(MarkdownPipeline pipeLine, MarkdownDocument markdownDocument)
+        {
+            var writer = new StringWriter();
+            var htmlRenderer = new HtmlRenderer(writer);
+            pipeLine.Setup(htmlRenderer);
+            htmlRenderer.Render(markdownDocument);
+            writer.Flush();
+            return writer.ToString();
+        }
+
+        private static void fixupLinks(string contentPath, MarkdownDocument markdownDocument)
+        {
             var links = markdownDocument.Descendants().OfType<LinkInline>();
             foreach (var link in links)
             {
@@ -46,35 +79,12 @@ namespace MarkdownWiki.Parsers
                     }
                 }
             }
-
-            var writer = new StringWriter();
-            var htmlRenderer = new HtmlRenderer(writer);
-            pipeLine.Setup(htmlRenderer);
-            htmlRenderer.Render(markdownDocument);
-            writer.Flush();
-
-            return writer.ToString();
         }
 
         private static string fixUpTableOfContents(string content)
         {
             var tableOfContentsParser = new TableOfContentsParser();
             return tableOfContentsParser.Parse(content);
-        }
-
-        public static string MarkDownToHtml(string entry)
-        {
-            var filePath = absoluteLocalFilePath(entry);
-
-            var content = File.Exists(filePath)
-                ? File.ReadAllText(filePath)
-                : "File Not Found";
-
-            var contentPath = Path.GetDirectoryName(entry);
-            var markedUpContent = content.Transform2(contentPath);
-
-            markedUpContent = fixUpTableOfContents(markedUpContent);
-            return markedUpContent;
         }
 
         private static string absoluteLocalFilePath(string pathRelativeToWikiContent)

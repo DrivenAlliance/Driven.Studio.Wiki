@@ -11,6 +11,7 @@ using MarkdownWiki;
 using MarkdownWiki.Controllers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.StaticFiles.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -64,6 +65,10 @@ namespace WikiNetCore
                 app.UseExceptionHandler("/Home/Error");
             }
 
+            app.MapWhen(
+                context => context.Request.Path.Value.EndsWith(".md"),
+                appBranch => { appBranch.UseMarkdownRenderer(); });
+
             app.UseStaticFiles();
 
             app.UseMvc(routes =>
@@ -97,7 +102,6 @@ namespace WikiNetCore
                     using (var reader = doc.OpenText()) { contents = reader.ReadToEnd(); }
 
                     var normalizedFileName = doc.FullName.NormalizeFileName();
-                    //var nfn = doc.FullName.NFN();
 
                     var luceneDoc = new Document();
                     luceneDoc.Add(new Field("Entry", normalizedFileName, Field.Store.YES, Field.Index.ANALYZED));

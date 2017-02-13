@@ -6,7 +6,6 @@ using Markdig;
 using Markdig.Renderers;
 using Markdig.Syntax;
 using Markdig.Syntax.Inlines;
-using static Markdig.Markdown;
 
 namespace MarkdownWiki.Parsers
 {
@@ -23,7 +22,7 @@ namespace MarkdownWiki.Parsers
             var contentPath = Path.GetDirectoryName(entry);
             // todo: could probably build this once only?
             var pipeLine = buildMarkdigParserPipeLine();
-            var markdownDocument = Parse(content, pipeLine);
+            var markdownDocument = Markdown.Parse(content, pipeLine);
 
             fixupLinks(contentPath, markdownDocument);
             var markedUpContent = render(pipeLine, markdownDocument);
@@ -71,10 +70,13 @@ namespace MarkdownWiki.Parsers
                     {
                         if (!resultingUri.IsAbsoluteUri)
                         {
+                            //link.Url = $"/{link.Url}";
+
                             // todo: do this better than a hardcoded '/'?
                             var contentLink = UrlEncoder.Default.Encode(contentPath + "/" + resultingUri);
-                            var substituteGroupValue = $"ViewPage?entry={contentLink}";
-                            link.Url = substituteGroupValue;
+                            //var substituteGroupValue = $"ViewPage?entry={contentLink}";
+                            //link.Url = substituteGroupValue;
+                            link.Url = $"/{contentLink}";
                         }
                     }
                 }
@@ -90,7 +92,8 @@ namespace MarkdownWiki.Parsers
         private static string absoluteLocalFilePath(string pathRelativeToWikiContent)
         {
             var location = Settings.WikiContentPathUri();
-            return new Uri(location, pathRelativeToWikiContent).LocalPath;
+            return Path.Combine(location.LocalPath, pathRelativeToWikiContent);
+            //return new Uri(location, pathRelativeToWikiContent).LocalPath;
         }
     }
 }

@@ -70,13 +70,10 @@ namespace MarkdownWiki.Parsers
                     {
                         if (!resultingUri.IsAbsoluteUri)
                         {
-                            //link.Url = $"/{link.Url}";
-
                             // todo: do this better than a hardcoded '/'?
                             var contentLink = UrlEncoder.Default.Encode(contentPath + "/" + resultingUri);
-                            //var substituteGroupValue = $"ViewPage?entry={contentLink}";
-                            //link.Url = substituteGroupValue;
-                            link.Url = $"/{contentLink}";
+                            var substituteGroupValue = $"ViewPage?entry={contentLink}";
+                            link.Url = substituteGroupValue;
                         }
                     }
                 }

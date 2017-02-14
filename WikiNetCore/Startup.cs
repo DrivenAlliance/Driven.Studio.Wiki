@@ -65,9 +65,9 @@ namespace WikiNetCore
                 app.UseExceptionHandler("/Home/Error");
             }
 
-            app.MapWhen(
-                context => context.Request.Path.Value.EndsWith(".md"),
-                appBranch => { appBranch.UseMarkdownRenderer(); });
+            //app.MapWhen(
+            //    context => context.Request.Path.Value.EndsWith(".md"),
+            //    appBranch => { appBranch.UseMarkdownRenderer(); });
 
             app.UseStaticFiles();
 

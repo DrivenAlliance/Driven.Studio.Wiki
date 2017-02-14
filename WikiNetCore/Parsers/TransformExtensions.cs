@@ -53,12 +53,11 @@ namespace MarkdownWiki.Parsers
 
         private static void fixupLinks(string contentPath, MarkdownDocument markdownDocument)
         {
-            var localLinks = markdownDocument.Descendants().OfType<LinkInline>()
-                .Select(l => new MarkdownLinkUriPair(l))
-                .Where(l => l.IsValidLocalLink());
+            var links = markdownDocument.Descendants().OfType<LinkInline>()
+                .Select(l => new LocalLinkConverter(l));
 
-            foreach (var link in localLinks)
-                link.Fixit(contentPath);
+            foreach (var link in links)
+                link.FixLocal(contentPath);
         }
 
         private static string fixUpTableOfContents(string content)
@@ -74,12 +73,12 @@ namespace MarkdownWiki.Parsers
         }
     }
 
-    internal class MarkdownLinkUriPair
+    internal class LocalLinkConverter
     {
         private readonly LinkInline _markdownLink;
         private readonly Uri _uri;
 
-        public MarkdownLinkUriPair(LinkInline markdownLink)
+        public LocalLinkConverter(LinkInline markdownLink)
         {
             _markdownLink = markdownLink;
             Uri linkUri;
@@ -87,16 +86,19 @@ namespace MarkdownWiki.Parsers
                 _uri = linkUri;
         }
 
-        public bool IsValidLocalLink()
+        public void FixLocal(string contentPath)
         {
-            return _uri != null && !_uri.IsAbsoluteUri;
+            if (isValidLocalLink())
+            {
+                _markdownLink.Url = linksToStaticContent()
+                    ? linkToStaticContent(contentPath)
+                    : linkToDynamicContent(contentPath);
+            }
         }
 
-        public void Fixit(string contentPath)
+        private bool isValidLocalLink()
         {
-            _markdownLink.Url = linksToStaticContent()
-                ? linkToStaticContent(contentPath, _uri)
-                : linkToDynamicContent(contentPath, _uri);
+            return _uri != null && !_uri.IsAbsoluteUri;
         }
 
         private bool linksToStaticContent()
@@ -105,19 +107,19 @@ namespace MarkdownWiki.Parsers
             return _markdownLink.IsImage;
         }
 
-        private static string linkToDynamicContent(string contentPath, Uri linkUri)
+        private string linkToDynamicContent(string contentPath)
         {
             // todo: do this better than a hardcoded '/'?
-            var contentLink = UrlEncoder.Default.Encode(contentPath + "/" + linkUri);
+            var contentLink = UrlEncoder.Default.Encode(contentPath + "/" + _uri);
             return $"ViewPage?entry={contentLink}";
         }
 
-        private static string linkToStaticContent(string contentPath, Uri linkUri)
+        private string linkToStaticContent(string contentPath)
         {
             // todo: shift to content root
             // todo: unhardcode
             var wikiContentRoot = "/wikicontent";
-            var imgPath = linkUri.ToString();
+            var imgPath = _uri.ToString();
             return $"{wikiContentRoot}/{contentPath}/{imgPath}";
         }
     }

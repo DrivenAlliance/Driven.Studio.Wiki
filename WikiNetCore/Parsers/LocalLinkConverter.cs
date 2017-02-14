@@ -43,7 +43,8 @@ namespace MarkdownWiki.Parsers
 
         private static bool linksToStaticContent(LinkInline markdownLink)
         {
-            // todo: consider better way of checking for content to be generated instead of this flag
+            // todo: consider better way of checking for static content. Maybe if link ends in .md / .markdown etc?
+            // todo: what about other kinds of static content, like .pdf?
             return markdownLink.IsImage;
         }
     }

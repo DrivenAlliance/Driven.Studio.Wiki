@@ -58,7 +58,9 @@ namespace MarkdownWiki.Parsers
         {
             var converter = new LocalLinkConverter(
                 parentContentPath,
+                // todo: pull up
                 "ViewPage?entry=",
+                // todo: pull up
                 $"/{Settings.WikiContentRelativePath}/");
 
             var links = markdownDocument

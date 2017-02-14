@@ -1,57 +1,50 @@
 using System;
-using System.Text.Encodings.Web;
 using Markdig.Syntax.Inlines;
 
 namespace MarkdownWiki.Parsers
 {
     public class LocalLinkConverter
     {
-        private readonly LinkInline _markdownLink;
-        private readonly Uri _uri;
         private readonly string _parentContentPath;
+        private readonly string _dynamicContentBaseUrl;
+        private readonly string _staticContentBaseUrl;
 
-        public LocalLinkConverter(LinkInline markdownLink, string parentContentPath)
+        public LocalLinkConverter(string parentContentPath, string dynamicContentBaseUrl, string staticContentBaseUrl)
         {
-            _markdownLink = markdownLink;
             _parentContentPath = parentContentPath;
-            Uri linkUri;
-            if (Uri.TryCreate(markdownLink.Url, UriKind.RelativeOrAbsolute, out linkUri))
-                _uri = linkUri;
+            _dynamicContentBaseUrl = dynamicContentBaseUrl;
+            _staticContentBaseUrl = staticContentBaseUrl;
         }
 
-        public void FixLocal()
+        public void Convert(LinkInline markdownLink)
         {
-            if (isValidRelativeLink())
+            Uri linkUri;
+            if (!Uri.TryCreate(markdownLink.Url, UriKind.RelativeOrAbsolute, out linkUri))
+                // Link not parseable as URI, leave as is
+                return;
+
+            if (isValidRelativeLink(linkUri))
             {
-                _markdownLink.Url = linksToStaticContent()
-                    ? buildLinkToStaticContent()
-                    : buildLinkToDynamicContent();
+                markdownLink.Url = linksToStaticContent(markdownLink)
+                    ? buildUrl(_staticContentBaseUrl, linkUri.ToString())
+                    : buildUrl(_dynamicContentBaseUrl, linkUri.ToString());
             }
         }
 
-        private bool isValidRelativeLink()
+        private string buildUrl(string baseUrl, string targetLink)
         {
-            return _uri != null && !_uri.IsAbsoluteUri;
+            return $"{baseUrl}{_parentContentPath}/{targetLink}";
         }
 
-        private bool linksToStaticContent()
+        private static bool isValidRelativeLink(Uri uri)
+        {
+            return uri != null && !uri.IsAbsoluteUri;
+        }
+
+        private static bool linksToStaticContent(LinkInline markdownLink)
         {
             // todo: consider better way of checking for content to be generated instead of this flag
-            return _markdownLink.IsImage;
-        }
-
-        private string buildLinkToDynamicContent()
-        {
-            // todo: do this better than a hardcoded '/'?
-            // todo: necessary to encode url?
-            var contentLink = UrlEncoder.Default.Encode(_parentContentPath + "/" + _uri);
-            return $"ViewPage?entry={contentLink}";
-        }
-
-        private string buildLinkToStaticContent()
-        {
-            var staticContentUri = _uri.ToString();
-            return $"/{Settings.WikiContentRelativePath}/{_parentContentPath}/{staticContentUri}";
+            return markdownLink.IsImage;
         }
     }
 }

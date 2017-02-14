@@ -23,11 +23,11 @@ namespace MarkdownWiki.Parsers
 
         private static string markdownContentToHtml(string content, string relativeContainerPath)
         {
-            // todo: could probably build this once only?
             var pipeLine = buildMarkdigParserPipeLine();
             var markdownDocument = Markdown.Parse(content, pipeLine);
 
             fixUpLocalLinks(relativeContainerPath, markdownDocument);
+
             var markedUpContent = render(pipeLine, markdownDocument);
 
             // todo: may be cleaner (& possibly performant) to do this on a parsed MarkdownDocument instance rather
@@ -56,13 +56,17 @@ namespace MarkdownWiki.Parsers
 
         private static void fixUpLocalLinks(string parentContentPath, MarkdownDocument markdownDocument)
         {
+            var converter = new LocalLinkConverter(
+                parentContentPath,
+                "ViewPage?entry=",
+                $"/{Settings.WikiContentRelativePath}/");
+
             var links = markdownDocument
                 .Descendants()
-                .OfType<LinkInline>()
-                .Select(link => new LocalLinkConverter(link, parentContentPath));
+                .OfType<LinkInline>();
 
             foreach (var link in links)
-                link.FixLocal();
+                converter.Convert(link);
         }
 
         private static string fixUpTableOfContents(string content)

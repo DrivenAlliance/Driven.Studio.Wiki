@@ -1,12 +1,10 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using Lucene.Net.Analysis.Standard;
 using Lucene.Net.QueryParsers;
 using Lucene.Net.Search;
 using Lucene.Net.Store;
-using MarkdownWiki;
 using MarkdownWiki.Controllers;
 using MarkdownWiki.Models;
 using MarkdownWiki.Parsers;

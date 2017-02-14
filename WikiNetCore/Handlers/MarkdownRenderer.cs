@@ -15,7 +15,7 @@ namespace WikiNetCore.Handlers
 
         public async Task Invoke(HttpContext context)
         {
-            var content = TransformExtensions.MarkDownToHtml(context.Request.Path);
+            var content = TransformExtensions.MarkDownFileToHtml(context.Request.Path);
             await context.Response.WriteAsync(content);
             //context.Response.ContentType = "image/*";
             //await context.Response.SendFileAsync(

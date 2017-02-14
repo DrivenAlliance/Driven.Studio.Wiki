@@ -75,7 +75,7 @@ namespace WikiNetCore.Controllers
 
         public ActionResult ViewPage(string entry)
         {
-            var markedDownContent = TransformExtensions.MarkDownToHtml(entry);
+            var markedDownContent = TransformExtensions.MarkDownFileToHtml(entry);
 
             var result = new MarkdownResult
             {

@@ -1,18 +1,19 @@
 using System;
 using System.IO;
-using System.Web;
 
 namespace MarkdownWiki
 {
     public class Settings
     {
+        public static string WikiContentRelativePath { get; } = "wikicontent";
+
         public static string WikiPath
         {
             get
             {
                 //var wikiContentPath = Properties.Settings.Default.WikiFilePath;
                 // TODO: UnHardcode
-                var wikiContentPath = "wikicontent";
+                var wikiContentPath = WikiContentRelativePath;
                 return Path.IsPathRooted(wikiContentPath)
                     ? wikiContentPath
                     : rootInAppPath(wikiContentPath);
@@ -21,7 +22,7 @@ namespace MarkdownWiki
 
         private static string rootInAppPath(string configuredPath)
         {
-            // todo: fix
+            // todo: Unhardcode
             var contentRootedPath = Path.Combine(@"c:\Projects\Driven.Studio.Wiki\WikiNetCore\wwwroot", configuredPath);
             return contentRootedPath;
             //return Path.Combine(HttpRuntime.AppDomainAppPath, configuredPath);

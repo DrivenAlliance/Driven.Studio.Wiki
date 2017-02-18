@@ -76,16 +76,24 @@ namespace WikiNetCore.Controllers
 
         public ActionResult ViewPage(string entry)
         {
-            var markdownConverter = new MarkdownConverter(entry, "ViewPage?entry=", $"/{Settings.WikiContentRelativePath}/");
+            return View(renderEntryFromMarkdown(entry, "ViewPage?entry="));
+        }
+
+        public ActionResult ViewContentOnly(string entry)
+        {
+            return View(renderEntryFromMarkdown(entry, "ViewContentOnly?entry="));
+        }
+
+        private static MarkdownResult renderEntryFromMarkdown(string entry, string baseUrl)
+        {
+            var markdownConverter = new MarkdownConverter(entry, baseUrl, $"/{Settings.WikiContentRelativePath}/");
             var markedDownContent = markdownConverter.Convert();
 
-            var result = new MarkdownResult
+            return new MarkdownResult
             {
                 Title = entry,
                 Content = markedDownContent
             };
-
-            return View(result);
         }
     }
 }

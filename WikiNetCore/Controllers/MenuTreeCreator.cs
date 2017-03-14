@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using MarkdownWiki.Models;
+using WikiNetCore;
 
 namespace MarkdownWiki.Controllers
 {
@@ -14,7 +15,7 @@ namespace MarkdownWiki.Controllers
                 .Select(dir =>
                     new MenuTreeNode()
                     {
-                        text = dir.Replace(Settings.WikiPath, ""),
+                        text = dir.Replace(Settings.Instance.AbsoluteWikiContentPath, ""),
                         nodes = GetMenuTreeForDirectory(dir).Union(GetFiles(dir))
                     })
                 .ToList();

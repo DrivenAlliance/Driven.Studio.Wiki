@@ -1,9 +1,9 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using Lucene.Net.Analysis.Standard;
 using Lucene.Net.Documents;
 using Lucene.Net.Index;
 using Lucene.Net.Store;
-using MarkdownWiki;
 using MarkdownWiki.Controllers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -24,6 +24,10 @@ namespace WikiNetCore
                 .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true)
                 .AddEnvironmentVariables();
             Configuration = builder.Build();
+
+            Settings.Instance = new Settings(env.WebRootPath, Configuration.GetSection("CanaryWiki"));
+
+            log($"Wiki content path is [{Settings.Instance.AbsoluteWikiContentPath}]");
         }
 
         public IConfigurationRoot Configuration { get; }
@@ -89,7 +93,7 @@ namespace WikiNetCore
                 writer.DeleteAll();
 
                 // Build new index
-                var wikiDocs = new DirectoryInfo(Settings.WikiPath).GetFiles("*.md", SearchOption.AllDirectories);
+                var wikiDocs = new DirectoryInfo(Settings.Instance.AbsoluteWikiContentPath).GetFiles("*.md", SearchOption.AllDirectories);
                 foreach (var doc in wikiDocs)
                 {
                     string contents;
@@ -109,5 +113,10 @@ namespace WikiNetCore
             }
         }
 
+        private static void log(string message)
+        {
+            // todo: replace with proper logging framework
+            Console.WriteLine(message);
+        }
     }
 }

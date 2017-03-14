@@ -4,6 +4,7 @@ using Markdig;
 using Markdig.Renderers;
 using Markdig.Syntax;
 using Markdig.Syntax.Inlines;
+using WikiNetCore;
 
 namespace MarkdownWiki.Parsers
 {
@@ -15,7 +16,7 @@ namespace MarkdownWiki.Parsers
 
         public MarkdownConverter(string filePathRelativeToWikiContentRoot, string dynamicContentBaseUrl, string staticContentBaseUrl)
         {
-            var wikiContentLocalPath = Settings.WikiContentPathUri().LocalPath;
+            var wikiContentLocalPath = Settings.Instance.WikiContentPathUri.LocalPath;
             _localFilePathAbsolute = Path.Combine(wikiContentLocalPath, filePathRelativeToWikiContentRoot);
 
             _tableOfContentsBuilder = new TableOfContentsBuilder();

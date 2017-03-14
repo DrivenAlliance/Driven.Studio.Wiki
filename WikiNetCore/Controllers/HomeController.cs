@@ -86,7 +86,8 @@ namespace WikiNetCore.Controllers
 
         private static MarkdownResult renderEntryFromMarkdown(string entry, string baseUrl)
         {
-            var markdownConverter = new MarkdownConverter(entry, baseUrl, $"/{Settings.WikiContentRelativePath}/");
+            var wikiContentRelativePath = Settings.Instance.WikiContentRelativePath;
+            var markdownConverter = new MarkdownConverter(entry, baseUrl, $"/{wikiContentRelativePath}/");
             var markedDownContent = markdownConverter.Convert();
 
             return new MarkdownResult

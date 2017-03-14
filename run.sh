@@ -1,1 +1,3 @@
-dotnet run --project WikiNetCore/
+pushd WikiNetCore
+dotnet run
+popd

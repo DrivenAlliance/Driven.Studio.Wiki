@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
+using WikiNetCore;
 
 namespace MarkdownWiki.Controllers
 {
@@ -10,7 +11,7 @@ namespace MarkdownWiki.Controllers
 
         public IActionResult GetMenuTree()
         {
-            return new JsonResult(_menuTreeCreator.GetMenuTreeForDirectory(Settings.WikiPath));
+            return new JsonResult(_menuTreeCreator.GetMenuTreeForDirectory(Settings.Instance.AbsoluteWikiContentPath));
 
             // todo: Not supported in AspNetCore.Mvc?
             //return new JsonResult()

@@ -35,7 +35,7 @@ namespace WikiNetCore
                     c.Add(
                         // Ugly injection of factory method. Consider a better DI container that can do this out of the box...
                         ServiceDescriptor.Transient(
-                            _ => new Func<IWikiContentSearcher>(() => new LuceneIndexSearcher(Path.Combine(contentRootDir, "lucene_index")))));
+                            _ => new Func<IWikiContentSearcher>(() => new LuceneIndexSearcher(luceneIndexPath))));
                     c.Add(
                         // Ugly injection of factory method. Consider a better DI container that can do this out of the box...
                         ServiceDescriptor.Transient(

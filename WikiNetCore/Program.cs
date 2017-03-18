@@ -1,16 +1,10 @@
 ﻿using System;
 using System.IO;
-using Lucene.Net.Analysis.Standard;
-using Lucene.Net.Documents;
-using Lucene.Net.Index;
-using Lucene.Net.Store;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using WikiNetCore.Controllers;
 using WikiNetCore.Parsers;
-using Directory = System.IO.Directory;
-using Version = Lucene.Net.Util.Version;
 
 namespace WikiNetCore
 {
@@ -50,7 +44,7 @@ namespace WikiNetCore
                 .Build();
 
             // todo: can this be done on a seperate thread?
-            indexWikiContent(luceneIndexPath, settings.AbsoluteWikiContentPath, settings);
+            new WikiContentIndexer(settings).Index(luceneIndexPath, settings.AbsoluteWikiContentPath);
 
             host.Run();
         }
@@ -66,37 +60,6 @@ namespace WikiNetCore
                 .AddCommandLine(args)
                 .AddEnvironmentVariables()
                 .Build();
-        }
-
-        private static void indexWikiContent(string indexPath, string wikiContentPath, Settings settings)
-        {
-            var directory = new SimpleFSDirectory(new DirectoryInfo(indexPath), new NativeFSLockFactory());
-
-            using (var analyzer = new StandardAnalyzer(Version.LUCENE_30))
-            using (var writer = new IndexWriter(directory, analyzer, new IndexWriter.MaxFieldLength(1000)))
-            {
-                // Expire any old indexes
-                writer.DeleteAll();
-
-                // Build new index
-                var wikiDocs = new DirectoryInfo(wikiContentPath).GetFiles("*.md", SearchOption.AllDirectories);
-                foreach (var doc in wikiDocs)
-                {
-                    string contents;
-                    using (var reader = doc.OpenText()) { contents = reader.ReadToEnd(); }
-
-                    var normalizedFileName = settings.MakeRelativeToWikiContentPath(doc.FullName);
-
-                    var luceneDoc = new Document();
-                    luceneDoc.Add(new Field("Entry", normalizedFileName, Field.Store.YES, Field.Index.ANALYZED));
-                    luceneDoc.Add(new Field("Content", contents, Field.Store.YES, Field.Index.ANALYZED));
-
-                    writer.AddDocument(luceneDoc);
-                }
-
-                writer.Optimize();
-                writer.Flush(true, true, true);
-            }
         }
 
         private static void log(string message)

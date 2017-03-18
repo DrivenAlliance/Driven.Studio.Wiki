@@ -9,39 +9,40 @@ namespace WikiNetCore.Parsers
 {
     public class MarkdownConverter
     {
-        private readonly LocalLinkConverter _localLinkConverter;
+        private readonly Settings _settings;
         private readonly TableOfContentsBuilder _tableOfContentsBuilder;
-        private readonly string _localFilePathAbsolute;
 
-        public MarkdownConverter(string filePathRelativeToWikiContentRoot, string dynamicContentBaseUrl, string staticContentBaseUrl, Settings settings)
+        public MarkdownConverter(Settings settings)
         {
-            var wikiContentLocalPath = settings.WikiContentPathUri.LocalPath;
-            _localFilePathAbsolute = Path.Combine(wikiContentLocalPath, filePathRelativeToWikiContentRoot);
-
+            _settings = settings;
             _tableOfContentsBuilder = new TableOfContentsBuilder();
+        }
+
+        public string Convert(string filePathRelativeToWikiContentRoot, string dynamicContentBaseUrl)
+        {
+            var wikiContentLocalPath = _settings.WikiContentPathUri.LocalPath;
+            var localFilePathAbsolute = Path.Combine(wikiContentLocalPath, filePathRelativeToWikiContentRoot);
 
             var relativeContainerPath = Path.GetDirectoryName(filePathRelativeToWikiContentRoot);
-            _localLinkConverter = new LocalLinkConverter(relativeContainerPath, dynamicContentBaseUrl, staticContentBaseUrl);
-        }
 
-        public string Convert()
-        {
-            var content = File.Exists(_localFilePathAbsolute)
-                ? File.ReadAllText(_localFilePathAbsolute)
+            var content = File.Exists(localFilePathAbsolute)
+                ? File.ReadAllText(localFilePathAbsolute)
                 : "File Not Found";
 
-            return markdownContentToHtml(content);
+            var localLinkConverter = new LocalLinkConverter(relativeContainerPath, dynamicContentBaseUrl, $"/{_settings.WikiContentRelativePath}/");
+
+            return markdownContentToHtml(content, localLinkConverter);
         }
 
-        private string markdownContentToHtml(string content)
+        private string markdownContentToHtml(string content, LocalLinkConverter localLinkConverter)
         {
             var pipeLine = buildMarkdigParserPipeLine();
             var markdownDocument = Markdown.Parse(content, pipeLine);
 
-            rewriteLocalLinks(markdownDocument);
+            rewriteLocalLinks(markdownDocument, localLinkConverter);
             var markedUpContent = render(pipeLine, markdownDocument);
 
-            // todo: may be cleaner (& possibly performant) to do this on a parsed MarkdownDocument instance rather
+            // todo: may be cleaner (& possibly more performant) to do this on a parsed MarkdownDocument instance rather
             markedUpContent = _tableOfContentsBuilder.Parse(markedUpContent);
 
             return markedUpContent;
@@ -66,14 +67,14 @@ namespace WikiNetCore.Parsers
             return writer.ToString();
         }
 
-        private void rewriteLocalLinks(MarkdownDocument markdownDocument)
+        private void rewriteLocalLinks(MarkdownDocument markdownDocument, LocalLinkConverter localLinkConverter)
         {
             var links = markdownDocument
                 .Descendants()
                 .OfType<LinkInline>();
 
             foreach (var link in links)
-                _localLinkConverter.Convert(link);
+                localLinkConverter.Convert(link);
         }
     }
 }

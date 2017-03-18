@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using WikiNetCore.Controllers;
+using WikiNetCore.Parsers;
 using Directory = System.IO.Directory;
 using Version = Lucene.Net.Util.Version;
 
@@ -37,7 +38,14 @@ namespace WikiNetCore
                 {
                     c.Add(ServiceDescriptor.Singleton(configuration));
                     c.Add(ServiceDescriptor.Singleton(settings));
-                    c.Add(ServiceDescriptor.Transient<IWikiContentSearcher>(sp => new LuceneIndexSearcher(Path.Combine(contentRootDir, "lucene_index"))));
+                    c.Add(
+                        // Ugly injection of factory method. Consider a better DI container that can do this out of the box...
+                        ServiceDescriptor.Transient(
+                            _ => new Func<IWikiContentSearcher>(() => new LuceneIndexSearcher(Path.Combine(contentRootDir, "lucene_index")))));
+                    c.Add(
+                        // Ugly injection of factory method. Consider a better DI container that can do this out of the box...
+                        ServiceDescriptor.Transient(
+                            _ => new Func<MarkdownConverter>(() => new MarkdownConverter(settings))));
                 })
                 .Build();
 

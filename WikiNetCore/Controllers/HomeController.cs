@@ -7,13 +7,13 @@ namespace WikiNetCore.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly Settings _settings;
-        private readonly IWikiContentSearcher _wikiContentSearcher;
+        private readonly Func<IWikiContentSearcher> _searcherFactory;
+        private readonly Func<MarkdownConverter> _markdownConverterFactory;
 
-        public HomeController(Settings settings, IWikiContentSearcher wikiContentSearcher)
+        public HomeController(Func<IWikiContentSearcher> searcherFactory, Func<MarkdownConverter> markdownConverterFactory)
         {
-            _settings = settings;
-            _wikiContentSearcher = wikiContentSearcher;
+            _searcherFactory = searcherFactory;
+            _markdownConverterFactory = markdownConverterFactory;
         }
 
         public IActionResult Index()
@@ -28,7 +28,8 @@ namespace WikiNetCore.Controllers
             {
                 try
                 {
-                    var results = _wikiContentSearcher.Search(searchModel.SearchTerm);
+                    var searcher = _searcherFactory();
+                    var results = searcher.Search(searchModel.SearchTerm);
                     searchModel.Results.AddRange(results);
                 }
                 catch (Exception ex)
@@ -53,9 +54,8 @@ namespace WikiNetCore.Controllers
 
         private MarkdownResult renderEntryFromMarkdown(string entry, string baseUrl)
         {
-            var wikiContentRelativePath = _settings.WikiContentRelativePath;
-            var markdownConverter = new MarkdownConverter(entry, baseUrl, $"/{wikiContentRelativePath}/", _settings);
-            var markedDownContent = markdownConverter.Convert();
+            var markdownConverter = _markdownConverterFactory();
+            var markedDownContent = markdownConverter.Convert(entry, baseUrl);
 
             return new MarkdownResult
             {

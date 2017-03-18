@@ -4,9 +4,8 @@ using Markdig;
 using Markdig.Renderers;
 using Markdig.Syntax;
 using Markdig.Syntax.Inlines;
-using WikiNetCore;
 
-namespace MarkdownWiki.Parsers
+namespace WikiNetCore.Parsers
 {
     public class MarkdownConverter
     {

@@ -1,6 +1,4 @@
-using Lucene.Net.Documents;
-
-namespace MarkdownWiki.Controllers
+namespace WikiNetCore.Controllers
 {
     public static class DisplayResultFormatter
     {

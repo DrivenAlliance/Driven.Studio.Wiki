@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using CsQuery;
 
-namespace MarkdownWiki.Parsers
+namespace WikiNetCore.Parsers
 {
     public class TableOfContentsBuilder
     {

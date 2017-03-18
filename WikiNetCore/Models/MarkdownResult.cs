@@ -1,4 +1,4 @@
-﻿namespace MarkdownWiki.Models
+﻿namespace WikiNetCore.Models
 {
     public class MarkdownResult
     {

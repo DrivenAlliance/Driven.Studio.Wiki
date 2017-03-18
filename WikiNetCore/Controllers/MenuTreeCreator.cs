@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using MarkdownWiki.Models;
 using WikiNetCore;
+using WikiNetCore.Models;
 
 namespace MarkdownWiki.Controllers
 {

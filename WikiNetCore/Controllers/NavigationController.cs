@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using WikiNetCore;
+﻿using MarkdownWiki.Controllers;
+using Microsoft.AspNetCore.Mvc;
 
-namespace MarkdownWiki.Controllers
+namespace WikiNetCore.Controllers
 {
     public class NavigationController : Controller
     {
@@ -17,13 +17,6 @@ namespace MarkdownWiki.Controllers
         public IActionResult GetMenuTree()
         {
             return new JsonResult(_menuTreeCreator.GetMenuTreeForDirectory(_settings.AbsoluteWikiContentPath));
-
-            // todo: Not supported in AspNetCore.Mvc?
-            //return new JsonResult()
-            //{
-            // Data = _menuTreeCreator.GetMenuTreeForDirectory(Settings.WikiPath),
-            //JsonRequestBehavior = JsonRequestBehavior.AllowGet
-            //};
         }
     }
 }

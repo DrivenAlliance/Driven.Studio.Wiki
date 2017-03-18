@@ -1,7 +1,7 @@
 using System;
 using Markdig.Syntax.Inlines;
 
-namespace MarkdownWiki.Parsers
+namespace WikiNetCore.Parsers
 {
     public class LocalLinkConverter
     {

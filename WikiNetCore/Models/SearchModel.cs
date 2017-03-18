@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
-namespace MarkdownWiki.Models
+namespace WikiNetCore.Models
 {
     public class SearchModel
     {

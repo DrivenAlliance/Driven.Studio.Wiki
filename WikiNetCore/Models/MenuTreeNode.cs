@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace MarkdownWiki.Models
+namespace WikiNetCore.Models
 {
     public class MenuTreeNode
     {

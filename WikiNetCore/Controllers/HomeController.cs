@@ -5,14 +5,12 @@ using Lucene.Net.Analysis.Standard;
 using Lucene.Net.QueryParsers;
 using Lucene.Net.Search;
 using Lucene.Net.Store;
-using MarkdownWiki;
-using MarkdownWiki.Controllers;
-using MarkdownWiki.Models;
-using MarkdownWiki.Parsers;
 using Microsoft.Ajax.Utilities;
 using Microsoft.AspNetCore.Hosting;
 using Version = Lucene.Net.Util.Version;
 using Microsoft.AspNetCore.Mvc;
+using WikiNetCore.Models;
+using WikiNetCore.Parsers;
 
 namespace WikiNetCore.Controllers
 {

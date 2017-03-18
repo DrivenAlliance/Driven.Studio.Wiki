@@ -1,10 +1,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using WikiNetCore;
 using WikiNetCore.Models;
 
-namespace MarkdownWiki.Controllers
+namespace WikiNetCore.Controllers
 {
     public class MenuTreeCreator
     {

@@ -1,9 +1,7 @@
 ﻿using System.IO;
-using System.Linq;
 using Markdig;
 using Markdig.Renderers;
 using Markdig.Syntax;
-using Markdig.Syntax.Inlines;
 
 namespace WikiNetCore.Parsers
 {
@@ -20,15 +18,12 @@ namespace WikiNetCore.Parsers
 
         public string Convert(string filePathRelativeToWikiContentRoot, string dynamicContentBaseUrl)
         {
-            var wikiContentLocalPath = _settings.WikiContentPathUri.LocalPath;
-            var localFilePathAbsolute = Path.Combine(wikiContentLocalPath, filePathRelativeToWikiContentRoot);
-
-            var relativeContainerPath = Path.GetDirectoryName(filePathRelativeToWikiContentRoot);
-
+            var localFilePathAbsolute = Path.Combine(_settings.WikiContentFullLocalPath, filePathRelativeToWikiContentRoot);
             var content = File.Exists(localFilePathAbsolute)
                 ? File.ReadAllText(localFilePathAbsolute)
                 : "File Not Found";
 
+            var relativeContainerPath = Path.GetDirectoryName(filePathRelativeToWikiContentRoot);
             var localLinkConverter = new LocalLinkConverter(relativeContainerPath, dynamicContentBaseUrl, $"/{_settings.WikiContentRelativePath}/");
 
             return markdownContentToHtml(content, localLinkConverter);
@@ -39,7 +34,7 @@ namespace WikiNetCore.Parsers
             var pipeLine = buildMarkdigParserPipeLine();
             var markdownDocument = Markdown.Parse(content, pipeLine);
 
-            rewriteLocalLinks(markdownDocument, localLinkConverter);
+            localLinkConverter.RewriteLocalLinks(markdownDocument);
             var markedUpContent = render(pipeLine, markdownDocument);
 
             // todo: may be cleaner (& possibly more performant) to do this on a parsed MarkdownDocument instance rather
@@ -65,16 +60,6 @@ namespace WikiNetCore.Parsers
             writer.Flush();
 
             return writer.ToString();
-        }
-
-        private void rewriteLocalLinks(MarkdownDocument markdownDocument, LocalLinkConverter localLinkConverter)
-        {
-            var links = markdownDocument
-                .Descendants()
-                .OfType<LinkInline>();
-
-            foreach (var link in links)
-                localLinkConverter.Convert(link);
         }
     }
 }

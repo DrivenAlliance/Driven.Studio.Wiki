@@ -19,7 +19,7 @@ namespace WikiNetCore
             var configuration = buildConfiguration(args, configBasePath);
             var settings = new Settings(webRootDir, configuration.GetSection("CanaryWiki"));
 
-            log($"Wiki content path is [{settings.AbsoluteWikiContentPath}]");
+            log($"Wiki content path is [{settings.WikiContentFullLocalPath}]");
 
             var host = new WebHostBuilder()
                 .UseKestrel()
@@ -44,7 +44,7 @@ namespace WikiNetCore
                 .Build();
 
             // todo: can this be done on a seperate thread?
-            new WikiContentIndexer(settings).Index(luceneIndexPath, settings.AbsoluteWikiContentPath);
+            new WikiContentIndexer(settings).Index(luceneIndexPath, settings.WikiContentFullLocalPath);
 
             host.Run();
         }

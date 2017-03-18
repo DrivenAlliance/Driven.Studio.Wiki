@@ -16,7 +16,7 @@ namespace WikiNetCore.Controllers
 
         public IActionResult GetMenuTree()
         {
-            return new JsonResult(_menuTreeCreator.GetMenuTreeForDirectory(_settings.AbsoluteWikiContentPath));
+            return new JsonResult(_menuTreeCreator.GetMenuTreeForDirectory(_settings.WikiContentFullLocalPath));
         }
     }
 }

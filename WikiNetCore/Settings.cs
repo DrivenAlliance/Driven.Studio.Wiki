@@ -10,28 +10,23 @@ namespace WikiNetCore
         {
             // Wiki content needs to reside under the web root in order to serve static files like images.
             WikiContentRelativePath = config["WikiContentDir"];
-            AbsoluteWikiContentPath = buildAbsoluteWikiContentPath(webRootPath);
+            WikiContentFullLocalPath = buildAbsoluteWikiContentPath(webRootPath);
         }
 
-        public string AbsoluteWikiContentPath { get; }
+        public string WikiContentFullLocalPath { get; }
         public string WikiContentRelativePath { get; }
-
-        public Uri WikiContentPathUri
-        {
-            get
-            {
-                var wikiContentUri = new Uri(AbsoluteWikiContentPath);
-                // todo: the trailing slash here is important, as it identifies the uri as a container
-                return !wikiContentUri.AbsoluteUri.EndsWith("/")
-                    ? new Uri(wikiContentUri + "/")
-                    : wikiContentUri;
-            }
-        }
 
         public string MakeRelativeToWikiContentPath(string fileName)
         {
-            var uri = new Uri(fileName);
-            return WikiContentPathUri.MakeRelativeUri(uri).ToString();
+            var wikiContentUri = new Uri(WikiContentFullLocalPath);
+            // Note: the trailing slash here is important, as it identifies the uri as a container
+            var containerUri = wikiContentUri.AbsoluteUri.EndsWith("/")
+                ? wikiContentUri
+                : new Uri(wikiContentUri + "/");
+
+            var fileUri = new Uri(fileName);
+
+            return containerUri.MakeRelativeUri(fileUri).ToString();
         }
 
         private string buildAbsoluteWikiContentPath(string webRootPath)

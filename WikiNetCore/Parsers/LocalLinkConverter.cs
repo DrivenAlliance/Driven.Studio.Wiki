@@ -1,4 +1,6 @@
 using System;
+using System.Linq;
+using Markdig.Syntax;
 using Markdig.Syntax.Inlines;
 
 namespace WikiNetCore.Parsers
@@ -16,7 +18,17 @@ namespace WikiNetCore.Parsers
             _staticContentBaseUrl = staticContentBaseUrl;
         }
 
-        public void Convert(LinkInline markdownLink)
+        public void RewriteLocalLinks(MarkdownDocument markdownDocument)
+        {
+            var links = markdownDocument
+                .Descendants()
+                .OfType<LinkInline>();
+
+            foreach (var link in links)
+                convert(link);
+        }
+
+        private void convert(LinkInline markdownLink)
         {
             Uri linkUri;
             if (!Uri.TryCreate(markdownLink.Url, UriKind.RelativeOrAbsolute, out linkUri))

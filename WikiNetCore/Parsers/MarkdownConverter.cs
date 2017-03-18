@@ -14,9 +14,9 @@ namespace MarkdownWiki.Parsers
         private readonly TableOfContentsBuilder _tableOfContentsBuilder;
         private readonly string _localFilePathAbsolute;
 
-        public MarkdownConverter(string filePathRelativeToWikiContentRoot, string dynamicContentBaseUrl, string staticContentBaseUrl)
+        public MarkdownConverter(string filePathRelativeToWikiContentRoot, string dynamicContentBaseUrl, string staticContentBaseUrl, Settings settings)
         {
-            var wikiContentLocalPath = Settings.Instance.WikiContentPathUri.LocalPath;
+            var wikiContentLocalPath = settings.WikiContentPathUri.LocalPath;
             _localFilePathAbsolute = Path.Combine(wikiContentLocalPath, filePathRelativeToWikiContentRoot);
 
             _tableOfContentsBuilder = new TableOfContentsBuilder();

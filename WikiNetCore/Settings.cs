@@ -6,8 +6,6 @@ namespace WikiNetCore
 {
     public class Settings
     {
-        public static Settings Instance;
-
         public Settings(string webRootPath, IConfiguration config)
         {
             // Wiki content needs to reside under the web root in order to serve static files like images.
@@ -28,6 +26,12 @@ namespace WikiNetCore
                     ? new Uri(wikiContentUri + "/")
                     : wikiContentUri;
             }
+        }
+
+        public string MakeRelativeToWikiContentPath(string fileName)
+        {
+            var uri = new Uri(fileName);
+            return WikiContentPathUri.MakeRelativeUri(uri).ToString();
         }
 
         private string buildAbsoluteWikiContentPath(string webRootPath)

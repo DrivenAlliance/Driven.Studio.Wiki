@@ -19,10 +19,12 @@ namespace WikiNetCore.Controllers
     public class HomeController : Controller
     {
         private readonly IHostingEnvironment _hostingEnvironment;
+        private readonly Settings _settings;
 
-        public HomeController(IHostingEnvironment hostingEnvironment)
+        public HomeController(IHostingEnvironment hostingEnvironment, Settings settings)
         {
             _hostingEnvironment = hostingEnvironment;
+            _settings = settings;
         }
 
         public IActionResult Index()
@@ -84,10 +86,10 @@ namespace WikiNetCore.Controllers
             return View(renderEntryFromMarkdown(entry, "ViewContentOnly?entry="));
         }
 
-        private static MarkdownResult renderEntryFromMarkdown(string entry, string baseUrl)
+        private MarkdownResult renderEntryFromMarkdown(string entry, string baseUrl)
         {
-            var wikiContentRelativePath = Settings.Instance.WikiContentRelativePath;
-            var markdownConverter = new MarkdownConverter(entry, baseUrl, $"/{wikiContentRelativePath}/");
+            var wikiContentRelativePath = _settings.WikiContentRelativePath;
+            var markdownConverter = new MarkdownConverter(entry, baseUrl, $"/{wikiContentRelativePath}/", _settings);
             var markedDownContent = markdownConverter.Convert();
 
             return new MarkdownResult

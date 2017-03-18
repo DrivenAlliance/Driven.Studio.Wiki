@@ -8,6 +8,13 @@ namespace MarkdownWiki.Controllers
 {
     public class MenuTreeCreator
     {
+        private readonly Settings _settings;
+
+        public MenuTreeCreator(Settings settings)
+        {
+            _settings = settings;
+        }
+
         public IEnumerable<MenuTreeNode> GetMenuTreeForDirectory(string parentDir)
         {
             return Directory.GetDirectories(parentDir)
@@ -15,26 +22,26 @@ namespace MarkdownWiki.Controllers
                 .Select(dir =>
                     new MenuTreeNode()
                     {
-                        text = dir.Replace(Settings.Instance.AbsoluteWikiContentPath, ""),
-                        nodes = GetMenuTreeForDirectory(dir).Union(GetFiles(dir))
+                        text = dir.Replace(parentDir, ""),
+                        nodes = GetMenuTreeForDirectory(dir).Union(getFiles(dir))
                     })
                 .ToList();
         }
 
-        private IEnumerable<MenuTreeNode> GetFiles(string dir)
+        private IEnumerable<MenuTreeNode> getFiles(string dir)
         {
             return Directory.GetFiles(dir,"*.md")
                 .Select(fileName =>
                     new MenuTreeNode()
                     {
                         text = fileName.Replace(dir,"").Replace(".md","").Replace("\\",""),
-                        href = CreateLinkFromFileName(fileName)
+                        href = createLinkFromFileName(fileName)
                     });
         }
 
-        private static string CreateLinkFromFileName(string fileName)
+        private string createLinkFromFileName(string fileName)
         {
-            return $"/Home/ViewPage?entry={fileName.NormalizeFileName()}";
+            return $"/Home/ViewPage?entry={_settings.MakeRelativeToWikiContentPath(fileName)}";
         }
     }
 }

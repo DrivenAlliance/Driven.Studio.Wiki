@@ -7,6 +7,7 @@ using Lucene.Net.Store;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using WikiNetCore.Controllers;
 using Directory = System.IO.Directory;
 using Version = Lucene.Net.Util.Version;
 
@@ -36,6 +37,7 @@ namespace WikiNetCore
                 {
                     c.Add(ServiceDescriptor.Singleton(configuration));
                     c.Add(ServiceDescriptor.Singleton(settings));
+                    c.Add(ServiceDescriptor.Transient<IWikiContentSearcher>(sp => new LuceneIndexSearcher(Path.Combine(contentRootDir, "lucene_index"))));
                 })
                 .Build();
 

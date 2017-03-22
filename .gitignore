@@ -11,3 +11,4 @@ packages/*
 *.userprefs
 *.swp
 lucene_index
+TestResult.xml
